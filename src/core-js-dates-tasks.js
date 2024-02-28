@@ -75,8 +75,14 @@ function getDayName(date) {
  * Date('2024-02-13T00:00:00Z') => Date('2024-02-16T00:00:00Z')
  * Date('2024-02-16T00:00:00Z') => Date('2024-02-23T00:00:00Z')
  */
-function getNextFriday(/* date */) {
-  throw new Error('Not implemented');
+function getNextFriday(date) {
+  const dateCopy = new Date(date.getTime());
+
+  return new Date(
+    dateCopy.setDate(
+      dateCopy.getDate() + ((7 - dateCopy.getDay() + 5) % 7 || 7)
+    )
+  );
 }
 
 /**
@@ -90,8 +96,8 @@ function getNextFriday(/* date */) {
  * 1, 2024 => 31
  * 2, 2024 => 29
  */
-function getCountDaysInMonth(/* month, year */) {
-  throw new Error('Not implemented');
+function getCountDaysInMonth(month, year) {
+  return new Date(year, month, 0).getDate();
 }
 
 /**
@@ -116,7 +122,7 @@ function getCountDaysOnPeriod(dateStart, dateEnd) {
  * Returns true if a given date is within a specified range, including both the start and end dates.
  *
  * @typedef {{
- * start: string, // The start date in ISO 8601 format (e.g., 'YYYY-MM-DD').
+ * start: string, // The start date in ISO 8601 format (e.g., "YYYY-MM-DD").
  * end: string    // The end date in ISO 8601 format.
  * }} DatePeriod
  *
@@ -163,8 +169,17 @@ function formatDate(/* date */) {
  * 12, 2023 => 10
  * 1, 2024 => 8
  */
-function getCountWeekendsInMonth(/* month, year */) {
-  throw new Error('Not implemented');
+function getCountWeekendsInMonth(month, year) {
+  const allDays = new Date(year, month, 0).getDate();
+  let weekendsCounter = 0;
+  for (let i = 1; i <= allDays; i += 1) {
+    const day = new Date(year, month - 1, i).getDay();
+    if (day === 6 || day === 0) {
+      weekendsCounter += 1;
+    }
+  }
+
+  return weekendsCounter;
 }
 
 /**
@@ -178,8 +193,11 @@ function getCountWeekendsInMonth(/* month, year */) {
  * Date(2024, 0, 31) => 5
  * Date(2024, 1, 23) => 8
  */
-function getWeekNumberByDate(/* date */) {
-  throw new Error('Not implemented');
+function getWeekNumberByDate(date) {
+  const startDate = new Date(date.getFullYear(), 0, 1);
+  const days = (date - startDate) / (24 * 60 * 60 * 1000);
+
+  return Math.ceil((days + startDate.getDay() + 1) / 7);
 }
 
 /**
@@ -217,8 +235,8 @@ function getQuarter(date) {
  * The start and end dates of the period are inclusive.
  *
  * @typedef {{
- * start: string, // The start date in 'DD-MM-YYYY' format.
- * end: string    // The end date in 'DD-MM-YYYY' format.
+ * start: string, // The start date in "DD-MM-YYYY" format.
+ * end: string    // The end date in "DD-MM-YYYY" format.
  * }} DatePeriod
  *
  * @param {DatePeriod} period - The start and end dates of the period.
@@ -246,8 +264,10 @@ function getWorkSchedule(/* period, countWorkDays, countOffDays */) {
  * Date(2022, 2, 1) => false
  * Date(2020, 2, 1) => true
  */
-function isLeapYear(/* date */) {
-  throw new Error('Not implemented');
+function isLeapYear(date) {
+  const year = date.getFullYear();
+
+  return year % 400 === 0 || (year % 100 !== 0 && year % 4 === 0);
 }
 
 module.exports = {
