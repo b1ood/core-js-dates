@@ -153,8 +153,21 @@ function isDateInPeriod(date, period) {
  * '1999-01-05T02:20:00.000Z' => '1/5/1999, 2:20:00 AM'
  * '2010-12-15T22:59:00.000Z' => '12/15/2010, 10:59:00 PM'
  */
-function formatDate(/* date */) {
-  throw new Error('Not implemented');
+function formatDate(date) {
+  const dateObj = new Date(date);
+
+  const options = {
+    year: 'numeric',
+    month: 'numeric',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: true,
+    timeZone: 'UTC',
+  };
+
+  return dateObj.toLocaleDateString('en-US', options);
 }
 
 /**
@@ -211,8 +224,22 @@ function getWeekNumberByDate(date) {
  * Date(2024, 0, 13) => Date(2024, 8, 13)
  * Date(2023, 1, 1) => Date(2023, 9, 13)
  */
-function getNextFridayThe13th(/* date */) {
-  throw new Error('Not implemented');
+function getNextFridayThe13th(date) {
+  let year = date.getFullYear();
+  let month = date.getMonth();
+  let res;
+
+  while (date) {
+    res = new Date(year, month, 13);
+    if (res.getDay() === 5) return res;
+    month += 1;
+    if (month === 12) {
+      month = 0;
+      year += 1;
+    }
+  }
+
+  return res;
 }
 
 /**
@@ -248,8 +275,28 @@ function getQuarter(date) {
  * { start: '01-01-2024', end: '15-01-2024' }, 1, 3 => ['01-01-2024', '05-01-2024', '09-01-2024', '13-01-2024']
  * { start: '01-01-2024', end: '10-01-2024' }, 1, 1 => ['01-01-2024', '03-01-2024', '05-01-2024', '07-01-2024', '09-01-2024']
  */
-function getWorkSchedule(/* period, countWorkDays, countOffDays */) {
-  throw new Error('Not implemented');
+function getWorkSchedule(period, countWorkDays, countOffDays) {
+  const firstDay = new Date(period.start.split('-').reverse().join('-'));
+  const lastDay = new Date(period.end.split('-').reverse().join('-'));
+  const schedule = [];
+  let isWorking = true;
+  let day = firstDay;
+
+  while (day <= lastDay) {
+    if (isWorking) {
+      for (let i = 0; i < countWorkDays && day <= lastDay; i += 1) {
+        schedule.push(day.toJSON());
+        day = new Date(day.setDate(day.getDate() + 1));
+      }
+      isWorking = false;
+    }
+    if (!isWorking) {
+      day = new Date(day.setDate(day.getDate() + countOffDays));
+      isWorking = true;
+    }
+  }
+
+  return schedule.map((el) => el.slice(0, 10).split('-').reverse().join('-'));
 }
 
 /**
